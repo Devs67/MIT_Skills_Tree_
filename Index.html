@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MIT App Inventor Skill Tree</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 24px;
+      background: #f3f4f6;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 0.5rem;
+      border: 2px solid #1f2937;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .progress-info {
+      flex: 1;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .progress-bar-outer {
+      height: 32px;
+      background: #e5e7eb;
+      border-radius: 0.5rem;
+      border: 2px solid #1f2937;
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      background: #3b82f6;
+      transition: width 0.3s ease;
+      border-radius: 0.25rem;
+    }
+
+    .btn {
+      appearance: none;
+      border: 2px solid #1f2937;
+      border-radius: 0.5rem;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: #3b82f6;
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #2563eb;
+    }
+
+    .sections {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section {
+      border: 2px solid #1f2937;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .section-header {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #000000;
+    }
+
+    .section-header span.count {
+      margin-left: 12px;
+      font-size: 0.9rem;
+    }
+
+    .section-header .right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-body {
+      padding: 16px;
+      background: #ffffff;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .skills-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .skills-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 0.5rem;
+      border: 2px solid #1f2937;
+      cursor: pointer;
+      background: #ffffff;
+      transition: background 0.15s ease;
+      font-size: 0.9rem;
+    }
+
+    .skill-item.completed {
+      font-weight: 600;
+    }
+
+    .skill-item input[type="checkbox"] {
+      margin-top: 2px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .footer-card {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .footer-card p {
+      margin: 4px 0;
+    }
+
+    .footer-card .total {
+      font-weight: 700;
+    }
+
+    .footer-card .credit {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid #d1d5db;
+      color: #6b7280;
+      font-size: 0.75rem;
+    }
+
+    .chevron {
+      font-size: 0.9rem;
+    }
+
+    .reset-icon {
+      font-size: 1rem;
+      display: inline-block;
+      transform: rotate(0deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="container">
+      <div class="card">
+        <h1>MIT App Inventor Skill Tree</h1>
+
+        <div class="progress-row">
+          <div class="progress-info">
+            <div class="progress-labels">
+              <span id="progress-text">Progress: 0/0</span>
+              <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+              <div
+                class="progress-bar-inner"
+                id="progress-bar"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <button id="reset-btn" class="btn">
+          <span class="reset-icon">⟲</span>
+          Reset Progress
+        </button>
+      </div>
+
+      <div id="sections" class="sections"></div>
+
+      <div class="card footer-card">
+        <p class="total" id="total-skills-text">Total Skills: 0</p>
+        <p>Click the checkboxes to track your progress. Data saves automatically in this browser.</p>
+        <p class="credit">Created by Devendhar B</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ----- DATA -----
+    const skillData = {
+      start: {
+        title: "START HERE",
+        color: "#60a5fa",
+        skills: [
+          "Set up MIT App Inventor account and connect device",
+          "Build a multi-screen app with navigation",
+          "Implement basic CRUD operations with TinyDB",
+          "Create a functional app using lists and loops",
+          "Use procedures to organize code logic",
+          "Handle user input validation and error messages",
+          "Integrate at least 3 different UI components",
+          "Test app thoroughly on real device"
+        ]
+      },
+      layout: {
+        title: "LAYOUT",
+        color: "#3b82f6",
+        skills: [
+          "HorizontalArrangement",
+          "VerticalArrangement",
+          "TableArrangement",
+          "HorizontalScrollArrangement",
+          "VerticalScrollArrangement",
+          "AbsoluteArrangement",
+          "Nest 3+ arrangements for complex layouts",
+          "Use percentage widths for responsive design",
+          "Master AlignHorizontal and AlignVertical",
+          "Build a dashboard with multiple sections"
+        ]
+      },
+      uiBasic: {
+        title: "USER INTERFACE - BASICS",
+        color: "#93c5fd",
+        skills: [
+          "Button",
+          "Label",
+          "Image",
+          "TextBox",
+          "PasswordTextBox",
+          "CheckBox",
+          "Switch",
+          "Slider",
+          "ListPicker",
+          "Spinner",
+          "DatePicker",
+          "TimePicker",
+          "CircularProgress",
+          "LinearProgress",
+          "WebViewer"
+        ]
+      },
+      uiAdvanced: {
+        title: "USER INTERFACE - ADVANCED",
+        color: "#2563eb",
+        skills: [
+          "Build dynamic ListView with custom data",
+          "Create toast notifications with Notifier",
+          "Implement ShowMessageDialog for alerts",
+          "Use ShowChooseDialog for user decisions",
+          "Embed and control HTML in WebViewer",
+          "Generate components dynamically at runtime",
+          "Modify component properties programmatically",
+          "Design consistent theme across screens",
+          "Pass complex data between screens",
+          "Create splash screen with timer",
+          "Build navigation drawer menu",
+          "Implement tabbed interface pattern",
+          "Validate forms before submission",
+          "Add search/filter to ListView",
+          "Design card-based UI layout"
+        ]
+      },
+      media: {
+        title: "MEDIA",
+        color: "#06b6d4",
+        skills: [
+          "Sound",
+          "Player",
+          "SoundRecorder",
+          "TextToSpeech",
+          "SpeechRecognizer",
+          "Camera",
+          "Camcorder",
+          "ImagePicker",
+          "FilePicker",
+          "VideoPlayer",
+          "Translator",
+          "Control audio playback (play/pause/stop)",
+          "Customize TTS voice and speed",
+          "Build voice-controlled feature",
+          "Create photo gallery viewer",
+          "Record and save audio files",
+          "Stream audio from URL"
+        ]
+      },
+      drawing: {
+        title: "DRAWING & ANIMATION",
+        color: "#0891b2",
+        skills: [
+          "Canvas - draw shapes and lines",
+          "ImageSprite - movable objects",
+          "Ball - bouncing physics",
+          "Detect touch and drag events",
+          "Implement sprite collision detection",
+          "Animate sprite movement smoothly",
+          "Build drawing app with color picker",
+          "Create game with multiple sprites"
+        ]
+      },
+      maps: {
+        title: "MAPS & LOCATION",
+        color: "#22d3ee",
+        skills: [
+          "Map",
+          "Marker",
+          "Circle",
+          "Rectangle",
+          "Polygon",
+          "LineString",
+          "FeatureCollection",
+          "Navigation",
+          "Display user location on map",
+          "Add multiple custom markers",
+          "Draw routes and paths",
+          "Calculate distance between points",
+          "Build location-based features",
+          "Create interactive map with info windows"
+        ]
+      },
+      charts: {
+        title: "CHARTS & VISUALIZATION",
+        color: "#7dd3fc",
+        skills: [
+          "Chart - bar, line, pie",
+          "ChartData2D",
+          "Trendline",
+          "Add multiple data series",
+          "Customize chart colors and labels",
+          "Create dynamic charts from sensor data",
+          "Build data dashboard with multiple charts"
+        ]
+      },
+      dataScience: {
+        title: "DATA SCIENCE & ML",
+        color: "#0284c7",
+        skills: [
+          "AnomalyDetection",
+          "Regression",
+          "Train simple ML model with data",
+          "Make predictions from trained model",
+          "Visualize ML results",
+          "Handle training data preparation"
+        ]
+      },
+      sensors: {
+        title: "SENSORS",
+        color: "#38bdf8",
+        skills: [
+          "AccelerometerSensor",
+          "GyroscopeSensor",
+          "OrientationSensor",
+          "Pedometer",
+          "LocationSensor",
+          "Clock",
+          "ProximitySensor",
+          "Barometer",
+          "Hygrometer",
+          "LightSensor",
+          "Thermometer",
+          "MagneticFieldSensor",
+          "NearField",
+          "BarcodeScanner",
+          "Detect shake gestures",
+          "Track device rotation and tilt",
+          "Count steps and distance",
+          "Get GPS coordinates",
+          "Create timers and intervals",
+          "Log sensor data over time",
+          "Build compass application",
+          "Combine multiple sensors"
+        ]
+      },
+      social: {
+        title: "SOCIAL",
+        color: "#0ea5e9",
+        skills: [
+          "ContactPicker",
+          "PhoneNumberPicker",
+          "EmailPicker",
+          "PhoneCall",
+          "Texting",
+          "Sharing",
+          "Send SMS programmatically",
+          "Receive and parse SMS",
+          "Share text and images",
+          "Make phone calls from app",
+          "Validate email and phone formats",
+          "Build contact management system"
+        ]
+      },
+      storage: {
+        title: "STORAGE",
+        color: "#67e8f9",
+        skills: [
+          "TinyDB",
+          "CloudDB",
+          "TinyWebDB",
+          "File",
+          "DataFile",
+          "Spreadsheet",
+          "Store and retrieve from TinyDB",
+          "Save lists and complex data",
+          "Read and write text files",
+          "Parse and create CSV files",
+          "Sync data with CloudDB",
+          "Store JSON structures",
+          "Implement data backup/restore",
+          "Build settings/preferences system"
+        ]
+      },
+      connectivity: {
+        title: "CONNECTIVITY",
+        color: "#5eead4",
+        skills: [
+          "Web",
+          "ActivityStarter",
+          "BluetoothClient",
+          "BluetoothServer",
+          "Serial",
+          "Make GET requests to APIs",
+          "POST data to web services",
+          "Parse JSON responses",
+          "Handle API errors properly",
+          "Connect via Bluetooth",
+          "Send/receive Bluetooth data",
+          "Open external apps with intents",
+          "Build Bluetooth chat app",
+          "Control Arduino via Bluetooth"
+        ]
+      },
+      logic: {
+        title: "LOGIC & PROGRAMMING",
+        color: "#bfdbfe",
+        skills: [
+          "Create and use global variables",
+          "Use local variables in procedures",
+          "Build and manipulate lists",
+          "Loop through lists with for each",
+          "Sort and search lists",
+          "Use dictionaries for key-value pairs",
+          "Write if/else conditionals",
+          "Implement nested if/else if",
+          "Use for loops with counters",
+          "Implement while loops",
+          "Create custom procedures",
+          "Build functions that return values",
+          "Use procedure parameters",
+          "Perform math operations",
+          "Generate random numbers",
+          "Manipulate strings (join, split, substring)",
+          "Convert between data types",
+          "Use Boolean logic (and, or, not)"
+        ]
+      },
+      projects: {
+        title: "PROJECTS",
+        color: "#1e40af",
+        skills: [
+          "Calculator with all operations",
+          "Multi-unit converter",
+          "Note app with save/load",
+          "Todo list with persistence",
+          "Timer and stopwatch combo",
+          "Expense tracker with charts",
+          "Quiz app with score tracking",
+          "Flashcard study app",
+          "Soundboard with recordings",
+          "Paint app with tools",
+          "Music player with playlist",
+          "Chat app with messages",
+          "Memory matching game",
+          "Maze runner game",
+          "Trivia quiz game",
+          "Arduino controller",
+          "Weather station dashboard",
+          "Fitness step tracker",
+          "GPS location tracker",
+          "Barcode scanner app",
+          "Language translator",
+          "Currency converter with live rates"
+        ]
+      },
+      advanced: {
+        title: "ADVANCED",
+        color: "#1d4ed8",
+        skills: [
+          "Import and use extensions (.aix)",
+          "Build modular reusable code",
+          "Implement state management",
+          "Handle async operations",
+          "Create event-driven architecture",
+          "Optimize app performance",
+          "Reduce memory usage",
+          "Implement data caching",
+          "Build offline-first apps",
+          "Create background services",
+          "Add local notifications",
+          "Implement deep linking",
+          "Support multiple languages"
+        ]
+      },
+      deployment: {
+        title: "DEPLOYMENT",
+        color: "#a5f3fc",
+        skills: [
+          "Generate APK file",
+          "Create custom app icon",
+          "Configure app permissions",
+          "Set version number properly",
+          "Build AAB for Play Store",
+          "Write store description",
+          "Create screenshots",
+          "Test on multiple devices",
+          "Implement version updates",
+          "Handle user feedback"
+        ]
+      }
+    };
+
+    // ----- STATE & STORAGE -----
+    const STORAGE_KEY = "mit-ai-progress";
+    let completedSkills = new Set();
+    let expandedSections = new Set(["start"]); // "START HERE" open by default
+
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const arr = JSON.parse(saved);
+          completedSkills = new Set(arr);
+        }
+      } catch (e) {
+        console.warn("Could not load progress", e);
+      }
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...completedSkills]));
+      } catch (e) {
+        console.warn("Could not save progress", e);
+      }
+    }
+
+    // ----- RENDERING -----
+    function computeTotalSkills() {
+      return Object.values(skillData).reduce(
+        (sum, section) => sum + section.skills.length,
+        0
+      );
+    }
+
+    function render() {
+      const totalSkills = computeTotalSkills();
+      const completedCount = completedSkills.size;
+      const percent = totalSkills === 0
+        ? 0
+        : Math.round((completedCount / totalSkills) * 100);
+
+      // Progress UI
+      const progressText = document.getElementById("progress-text");
+      const progressPercent = document.getElementById("progress-percent");
+      const progressBar = document.getElementById("progress-bar");
+      const totalSkillsText = document.getElementById("total-skills-text");
+
+      progressText.textContent = `Progress: ${completedCount}/${totalSkills}`;
+      progressPercent.textContent = `${percent}%`;
+      progressBar.style.width = `${percent}%`;
+      totalSkillsText.textContent = `Total Skills: ${totalSkills}`;
+
+      // Sections
+      const sectionsContainer = document.getElementById("sections");
+      sectionsContainer.innerHTML = "";
+
+      Object.entries(skillData).forEach(([sectionId, section]) => {
+        const sectionDiv = document.createElement("div");
+        sectionDiv.className = "section";
+
+        const sectionCompleted = section.skills.filter((skill) =>
+          completedSkills.has(`${sectionId}-${skill}`)
+        ).length;
+
+        const isExpanded = expandedSections.has(sectionId);
+
+        // Header
+        const headerBtn = document.createElement("button");
+        headerBtn.className = "section-header";
+        headerBtn.style.backgroundColor = section.color;
+        headerBtn.dataset.sectionId = sectionId;
+
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = section.title;
+
+        const rightDiv = document.createElement("div");
+        rightDiv.className = "right";
+
+        const countSpan = document.createElement("span");
+        countSpan.className = "count";
+        countSpan.textContent = `${sectionCompleted}/${section.skills.length}`;
+
+        const chevronSpan = document.createElement("span");
+        chevronSpan.className = "chevron";
+        chevronSpan.textContent = isExpanded ? "▼" : "▶";
+
+        rightDiv.appendChild(countSpan);
+        rightDiv.appendChild(chevronSpan);
+
+        headerBtn.appendChild(titleSpan);
+        headerBtn.appendChild(rightDiv);
+
+        headerBtn.addEventListener("click", () => {
+          if (expandedSections.has(sectionId)) {
+            expandedSections.delete(sectionId);
+          } else {
+            expandedSections.add(sectionId);
+          }
+          render();
+        });
+
+        sectionDiv.appendChild(headerBtn);
+
+        // Body
+        if (isExpanded) {
+          const bodyDiv = document.createElement("div");
+          bodyDiv.className = "section-body";
+
+          const gridDiv = document.createElement("div");
+          gridDiv.className = "skills-grid";
+
+          section.skills.forEach((skill) => {
+            const skillId = `${sectionId}-${skill}`;
+            const isCompleted = completedSkills.has(skillId);
+
+            const label = document.createElement("label");
+            label.className = "skill-item";
+            if (isCompleted) {
+              label.classList.add("completed");
+              label.style.backgroundColor = section.color;
+            }
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = isCompleted;
+            checkbox.dataset.skillId = skillId;
+
+            checkbox.addEventListener("change", () => {
+              toggleSkill(skillId);
+            });
+
+            const textSpan = document.createElement("span");
+            textSpan.textContent = skill;
+
+            label.appendChild(checkbox);
+            label.appendChild(textSpan);
+            gridDiv.appendChild(label);
+          });
+
+          bodyDiv.appendChild(gridDiv);
+          sectionDiv.appendChild(bodyDiv);
+        }
+
+        sectionsContainer.appendChild(sectionDiv);
+      });
+    }
+
+    // ----- ACTIONS -----
+    function toggleSkill(skillId) {
+      if (completedSkills.has(skillId)) {
+        completedSkills.delete(skillId);
+      } else {
+        completedSkills.add(skillId);
+      }
+      saveProgress();
+      render();
+    }
+
+    function resetProgress() {
+      const ok = window.confirm(
+        "Reset all progress? This cannot be undone."
+      );
+      if (!ok) return;
+      completedSkills = new Set();
+      saveProgress();
+      render();
+    }
+
+    // ----- INIT -----
+    document.addEventListener("DOMContentLoaded", () => {
+      loadProgress();
+      render();
+
+      document
+        .getElementById("reset-btn")
+        .addEventListener("click", resetProgress);
+    });
+  </script>
+</body>
+</html>
